@@ -32,8 +32,10 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   verification: {
-    // 네이버 서치어드바이저 인증 코드 — 발급 후 아래에 입력
-    // naver: 'NAVER_VERIFICATION_CODE',
+    google: 'vot705SzUcXaOCSbjWzNStzZ4c1wGHa_7cfSQF_T1DM',
+    other: {
+      'naver-site-verification': '31345335b3d3798643e0690b4c4c7ccd08071807',
+    },
   },
 }
 
