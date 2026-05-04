@@ -13,7 +13,7 @@ type Props = { params: { id: string } }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getArticle(params.id)
   if (!article) return {}
-  const url = `${BASE_URL}/article/${article.id}`
+  const url = `${BASE_URL}/article/${article.slug ?? article.id}`
   return {
     title: article.title,
     description: article.summary,
@@ -50,13 +50,13 @@ export default async function ArticlePage({ params }: Props) {
     dateModified: article.updated_at,
     author: { '@type': 'Organization', name: '육아정보' },
     publisher: { '@type': 'Organization', name: '육아정보' },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `${BASE_URL}/article/${article.id}` },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${BASE_URL}/article/${article.slug ?? article.id}` },
     breadcrumb: {
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: '홈', item: BASE_URL },
         { '@type': 'ListItem', position: 2, name: article.category, item: `${BASE_URL}/category/${categorySlug}` },
-        { '@type': 'ListItem', position: 3, name: article.title, item: `${BASE_URL}/article/${article.id}` },
+        { '@type': 'ListItem', position: 3, name: article.title, item: `${BASE_URL}/article/${article.slug ?? article.id}` },
       ],
     },
   }

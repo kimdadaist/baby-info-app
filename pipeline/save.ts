@@ -1,6 +1,16 @@
 import { supabaseAdmin } from '@/lib/supabase'
+import { slugify } from '@/lib/slugify'
 import type { GeneratedArticle } from './generate'
 import type { ReviewResult } from './review'
+
+async function uniqueSlug(base: string): Promise<string> {
+  for (let i = 0; i < 100; i++) {
+    const candidate = i === 0 ? base : `${base}-${i}`
+    const { data } = await supabaseAdmin.from('articles').select('id').eq('slug', candidate).limit(1)
+    if (!data?.length) return candidate
+  }
+  return `${base}-${Date.now()}`
+}
 
 export async function saveArticle(
   article: GeneratedArticle,
@@ -9,6 +19,8 @@ export async function saveArticle(
   weekRange: string | null,
   topic: string
 ): Promise<string> {
+  const slug = await uniqueSlug(slugify(article.title))
+
   const { data, error } = await supabaseAdmin
     .from('articles')
     .insert({
@@ -22,6 +34,7 @@ export async function saveArticle(
       quality_score: review.total,
       review_notes: review.notes,
       is_published: true,
+      slug,
     })
     .select('id')
     .single()

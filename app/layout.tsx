@@ -6,11 +6,11 @@ const BASE_URL = 'https://baby-info-app-taupe.vercel.app'
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: '육아정보 — 광고 없는 신뢰할 수 있는 육아 정보',
+    default: '육아정보 — 임신부터 신생아까지 믿을 수 있는 육아 정보',
     template: '%s | 육아정보',
   },
-  description: '임신 초기부터 신생아 3개월까지, AI가 검수한 광고 없는 육아 정보. 임신 주차별, 신생아 월령별 맞춤 정보를 제공합니다.',
-  keywords: ['육아정보', '임신', '신생아', '육아', '임산부', '태교', '출산준비', '신생아케어'],
+  description: '임신 초기부터 신생아 3개월까지, AI가 검수한 신뢰할 수 있는 육아 정보. 임신 주차별, 신생아 월령별 맞춤 정보를 제공합니다.',
+  keywords: ['육아정보', '임신', '신생아', '육아', '임산부', '태교', '출산준비', '신생아케어', '임신초기', '임신중기'],
   authors: [{ name: '육아정보' }],
   creator: '육아정보',
   openGraph: {
@@ -18,13 +18,13 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     url: BASE_URL,
     siteName: '육아정보',
-    title: '육아정보 — 광고 없는 신뢰할 수 있는 육아 정보',
-    description: '임신 초기부터 신생아 3개월까지, AI가 검수한 광고 없는 육아 정보',
+    title: '육아정보 — 임신부터 신생아까지 믿을 수 있는 육아 정보',
+    description: '임신 초기부터 신생아 3개월까지, AI가 검수한 신뢰할 수 있는 육아 정보',
   },
   twitter: {
     card: 'summary',
-    title: '육아정보 — 광고 없는 신뢰할 수 있는 육아 정보',
-    description: '임신 초기부터 신생아 3개월까지, AI가 검수한 광고 없는 육아 정보',
+    title: '육아정보 — 임신부터 신생아까지 믿을 수 있는 육아 정보',
+    description: '임신 초기부터 신생아 3개월까지, AI가 검수한 신뢰할 수 있는 육아 정보',
   },
   robots: {
     index: true,
@@ -44,9 +44,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body className="bg-rose-50/30 min-h-screen text-gray-800 antialiased">
         <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-          <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="max-w-3xl mx-auto px-4 h-14 flex items-center">
             <a href="/" className="font-bold text-rose-500 text-lg tracking-tight">🍼 육아정보</a>
-            <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">광고 없음</span>
           </div>
         </header>
         <div className="max-w-3xl mx-auto px-4 py-8">

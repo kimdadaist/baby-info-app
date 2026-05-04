@@ -14,7 +14,7 @@ export default async function HomePage({ searchParams }: { searchParams: { q?: s
       {/* 히어로 */}
       <section className="text-center space-y-4 py-4">
         <h1 className="text-2xl font-bold text-gray-800">믿을 수 있는 육아 정보</h1>
-        <p className="text-gray-500 text-sm">임신 초기부터 신생아 3개월까지, AI가 검수한 정보만 제공해요</p>
+        <p className="text-gray-500 text-sm">임신 초기부터 신생아 3개월까지, AI가 검수한 정보를 제공해요</p>
         <SearchBar defaultValue={query} />
       </section>
 

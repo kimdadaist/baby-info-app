@@ -7,11 +7,11 @@ const BASE_URL = 'https://baby-info-app-taupe.vercel.app'
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: articles } = await supabase
     .from('articles')
-    .select('id, updated_at')
+    .select('id, slug, updated_at')
     .eq('is_published', true)
 
   const articleUrls = (articles ?? []).map((a) => ({
-    url: `${BASE_URL}/article/${a.id}`,
+    url: `${BASE_URL}/article/${a.slug ?? a.id}`,
     lastModified: new Date(a.updated_at),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
@@ -25,12 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   return [
-    {
-      url: BASE_URL,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
+    { url: BASE_URL, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     ...categoryUrls,
     ...articleUrls,
   ]
