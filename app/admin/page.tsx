@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { CATEGORY_META } from '@/lib/search'
 import RefreshButton from '@/components/RefreshButton'
 import AdminGenerateForm from '@/components/AdminGenerateForm'
+import DeleteArticleButton from '@/components/DeleteArticleButton'
 
 export const revalidate = 0
 
@@ -16,8 +17,8 @@ async function getStats() {
   ] = await Promise.all([
     supabaseAdmin.from('articles').select('*', { count: 'exact', head: true }).eq('is_published', true),
     supabaseAdmin.from('articles').select('category').eq('is_published', true),
-    supabaseAdmin.from('pipeline_logs').select('*').eq('run_date', today).order('created_at', { ascending: false }),
-    supabaseAdmin.from('pipeline_logs').select('*').eq('status', 'failed').order('created_at', { ascending: false }).limit(10),
+    supabaseAdmin.from('pipeline_logs').select('*, articles(title, slug)').eq('run_date', today).order('created_at', { ascending: false }),
+    supabaseAdmin.from('pipeline_logs').select('*, articles(title, slug)').eq('status', 'failed').order('created_at', { ascending: false }).limit(10),
   ])
 
   // 카테고리별 집계
@@ -87,16 +88,28 @@ export default async function AdminPage() {
         {todayLogs.length > 0 ? (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             {todayLogs.map((log, i) => (
-              <div key={log.id} className={`flex items-center justify-between px-4 py-3 text-sm ${i < todayLogs.length - 1 ? 'border-b border-gray-50' : ''}`}>
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={log.status} />
-                  <span className="text-gray-700">{log.category}</span>
-                  <span className="text-gray-400">/</span>
-                  <span className="text-gray-500">{log.topic}</span>
+              <div key={log.id} className={`px-4 py-3 text-sm ${i < todayLogs.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <StatusBadge status={log.status} />
+                    <span className="text-gray-500 shrink-0">{log.category} / {log.topic}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <span className="text-gray-400 text-xs">
+                      {log.quality_score ? `${log.quality_score}점` : log.error_message ?? ''}
+                    </span>
+                    {log.article_id && <DeleteArticleButton articleId={log.article_id} />}
+                  </div>
                 </div>
-                <span className="text-gray-400 text-xs">
-                  {log.quality_score ? `${log.quality_score}점` : log.error_message ?? ''}
-                </span>
+                {log.articles?.title && (
+                  <a
+                    href={`/article/${log.articles.slug ?? log.article_id}`}
+                    target="_blank"
+                    className="text-xs text-gray-600 hover:text-rose-500 transition-colors mt-0.5 block truncate pl-0.5"
+                  >
+                    {log.articles.title} →
+                  </a>
+                )}
               </div>
             ))}
           </div>
