@@ -2,36 +2,17 @@ import Link from 'next/link'
 import SearchBar from '@/components/SearchBar'
 import ArticleCard from '@/components/ArticleCard'
 import PregnancyCalculator from '@/components/PregnancyCalculator'
-import {
-  searchArticles, getArticlesByCategory, getPopularTags,
-  detectCategory, detectTopic,
-  CATEGORY_META, SLUG_BY_CATEGORY,
-} from '@/lib/search'
+import { searchArticles, getPopularTags, CATEGORY_META, SLUG_BY_CATEGORY } from '@/lib/search'
 
 export const revalidate = 3600
 
 export default async function HomePage({ searchParams }: { searchParams: { q?: string } }) {
   const query = searchParams.q?.trim() ?? ''
 
-  const matchedCategory = query ? detectCategory(query) : null
-  const matchedTopic = query && !matchedCategory ? detectTopic(query) : null
-
-  const [articles, popularTags, categoryArticles] = await Promise.all([
+  const [articles, popularTags] = await Promise.all([
     query ? searchArticles(query) : Promise.resolve([]),
     getPopularTags(15),
-    matchedCategory ? getArticlesByCategory(matchedCategory) : Promise.resolve([]),
   ])
-
-  // 토픽 매칭 시 카테고리 무관하게 해당 토픽 글 조회
-  const topicArticles = matchedTopic && !matchedCategory
-    ? await Promise.all(
-        Object.keys(CATEGORY_META).map((cat) =>
-          getArticlesByCategory(cat, matchedTopic)
-        )
-      ).then((results) =>
-        results.flat().sort((a, b) => (b.quality_score ?? 0) - (a.quality_score ?? 0)).slice(0, 8)
-      )
-    : []
 
   return (
     <div className="space-y-10">
@@ -44,92 +25,29 @@ export default async function HomePage({ searchParams }: { searchParams: { q?: s
 
       {/* 검색 결과 */}
       {query && (
-        <div className="space-y-8">
-          {/* 텍스트 검색 결과 */}
-          <section>
-            <h2 className="text-sm font-medium text-gray-500 mb-4">
-              &ldquo;{query}&rdquo; 검색 결과 {articles.length}건
-            </h2>
-            {articles.length > 0 ? (
-              <div className="space-y-3">
-                {articles.map((a) => (
-                  <ArticleCard
-                    key={a.id}
-                    id={a.id}
-                    slug={a.slug ?? undefined}
-                    title={a.title}
-                    summary={a.summary}
-                    category={a.category}
-                    topic={a.topic}
-                    tags={a.tags}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-gray-400 py-8">직접 일치하는 글이 없어요.</p>
-            )}
-          </section>
-
-          {/* 카테고리 매칭 섹션 */}
-          {matchedCategory && categoryArticles.length > 0 && (
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-medium text-gray-500 flex items-center gap-1.5">
-                  <span>{CATEGORY_META[matchedCategory].emoji}</span>
-                  <span>{matchedCategory} 카테고리 추천 글</span>
-                </h2>
-                <Link
-                  href={`/category/${SLUG_BY_CATEGORY[matchedCategory]}`}
-                  className="text-xs text-rose-500 hover:underline"
-                >
-                  전체 보기 →
-                </Link>
-              </div>
-              <div className="space-y-3">
-                {categoryArticles.slice(0, 6).map((a) => (
-                  <ArticleCard
-                    key={a.id}
-                    id={a.id}
-                    slug={a.slug ?? undefined}
-                    title={a.title}
-                    summary={a.summary}
-                    category={matchedCategory ?? undefined}
-                    topic={a.topic}
-                    tags={a.tags}
-                  />
-                ))}
-              </div>
-            </section>
+        <section>
+          <h2 className="text-sm font-medium text-gray-500 mb-4">
+            &ldquo;{query}&rdquo; 검색 결과 {articles.length}건
+          </h2>
+          {articles.length > 0 ? (
+            <div className="space-y-3">
+              {articles.map((a) => (
+                <ArticleCard
+                  key={a.id}
+                  id={a.id}
+                  slug={a.slug ?? undefined}
+                  title={a.title}
+                  summary={a.summary}
+                  category={a.category}
+                  topic={a.topic}
+                  tags={a.tags}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-400 py-12">검색 결과가 없어요. 다른 키워드로 찾아보세요.</p>
           )}
-
-          {/* 토픽 매칭 섹션 */}
-          {matchedTopic && topicArticles.length > 0 && (
-            <section>
-              <h2 className="text-sm font-medium text-gray-500 mb-4">
-                &ldquo;{matchedTopic}&rdquo; 관련 추천 글
-              </h2>
-              <div className="space-y-3">
-                {topicArticles.map((a) => (
-                  <ArticleCard
-                    key={a.id}
-                    id={a.id}
-                    slug={a.slug ?? undefined}
-                    title={a.title}
-                    summary={a.summary}
-                    category={a.category}
-                    topic={a.topic}
-                    tags={a.tags}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* 아무것도 없을 때 */}
-          {articles.length === 0 && !matchedCategory && !matchedTopic && (
-            <p className="text-center text-gray-400 py-4">다른 키워드로 검색해보세요.</p>
-          )}
-        </div>
+        </section>
       )}
 
       {/* 카테고리 그리드 */}
