@@ -46,7 +46,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
           <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
             <a href="/" className="font-bold text-rose-500 text-lg tracking-tight">🍼 육아정보</a>
-            <a href="/checklist" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">체크리스트</a>
+            <div className="flex items-center gap-4">
+              <a href="/checklist" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">준비물</a>
+              <a href="/checklist/dad" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">아빠용</a>
+            </div>
           </div>
         </header>
         <div className="max-w-3xl mx-auto px-4 py-8">

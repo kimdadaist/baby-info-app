@@ -56,6 +56,35 @@ export default async function HomePage({ searchParams }: { searchParams: { q?: s
             title="신생아 월령별"
             categories={['신생아초기', '신생아중기', '신생아말기']}
           />
+
+          {/* 체크리스트 */}
+          <section>
+            <h2 className="text-base font-semibold text-gray-700 mb-3">체크리스트</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <Link href="/checklist">
+                <div className="bg-white rounded-2xl p-4 border border-rose-100 shadow-sm hover:shadow-md hover:border-rose-300 transition-all cursor-pointer">
+                  <div className="text-2xl mb-2">📦</div>
+                  <div className="font-semibold text-gray-800 text-sm">출산 준비물</div>
+                  <div className="text-xs text-gray-400 mt-1">112개 품목</div>
+                  <div className="flex flex-wrap gap-1 mt-2.5">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-500 border border-blue-100">출산전</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-50 text-orange-500 border border-orange-100">조리원</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-50 text-green-500 border border-green-100">출산후</span>
+                  </div>
+                </div>
+              </Link>
+              <Link href="/checklist/dad">
+                <div className="bg-white rounded-2xl p-4 border border-blue-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all cursor-pointer">
+                  <div className="text-2xl mb-2">👨</div>
+                  <div className="font-semibold text-gray-800 text-sm">출산직후 아빠용</div>
+                  <div className="text-xs text-gray-400 mt-1">출생신고·지원금·접종</div>
+                  <div className="mt-2.5">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-500 border border-blue-100">행정처리 가이드</span>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </section>
         </>
       )}
     </div>
