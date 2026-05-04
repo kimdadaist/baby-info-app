@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { DAD_CHECKLIST } from '@/lib/dad-checklist-data'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 const STORAGE_KEY = 'baby-dad-checklist-v1'
 
@@ -15,6 +16,7 @@ const BADGE_STYLES: Record<string, string> = {
 export default function DadChecklistClient() {
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [mounted, setMounted] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
 
   useEffect(() => {
     try {
@@ -122,22 +124,29 @@ export default function DadChecklistClient() {
         )
       })}
 
-      {/* 리셋 */}
-      {done > 0 && (
-        <div className="text-center">
-          <button
-            onClick={() => {
-              if (confirm('체크를 모두 초기화할까요?')) {
-                setChecked(new Set())
-                try { localStorage.removeItem(STORAGE_KEY) } catch {}
-              }
-            }}
-            className="text-xs text-gray-400 hover:text-red-400 transition-colors"
-          >
-            전체 초기화
-          </button>
-        </div>
-      )}
+      {/* 초기화 버튼 */}
+      <div className="flex justify-center pb-4">
+        <button
+          onClick={() => setShowConfirm(true)}
+          disabled={done === 0}
+          className="text-sm text-gray-400 border border-gray-200 hover:border-red-300 hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed px-4 py-2 rounded-xl transition-colors"
+        >
+          전체 초기화
+        </button>
+      </div>
+
+      <ConfirmDialog
+        open={showConfirm}
+        title="전체 초기화"
+        message={`체크한 항목 ${done}개가 모두 삭제돼요.`}
+        confirmLabel="전체 초기화할게요"
+        onConfirm={() => {
+          setChecked(new Set())
+          try { localStorage.removeItem(STORAGE_KEY) } catch {}
+          setShowConfirm(false)
+        }}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   )
 }
