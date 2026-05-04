@@ -44,8 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <body className="bg-rose-50/30 min-h-screen text-gray-800 antialiased">
         <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-          <div className="max-w-3xl mx-auto px-4 h-14 flex items-center">
+          <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
             <a href="/" className="font-bold text-rose-500 text-lg tracking-tight">🍼 육아정보</a>
+            <a href="/checklist" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">체크리스트</a>
           </div>
         </header>
         <div className="max-w-3xl mx-auto px-4 py-8">
