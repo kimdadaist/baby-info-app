@@ -9,8 +9,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   global: { fetch: (url, opts) => fetch(url, { ...opts, cache: 'no-store' }) },
 })
 
-// 파이프라인용 (쓰기 — service role)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+// 파이프라인용 (쓰기 — service role) — 어드민 대시보드도 사용하므로 캐시 비활성화
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  global: { fetch: (url, opts) => fetch(url, { ...opts, cache: 'no-store' }) },
+})
 
 export type Article = {
   id: string

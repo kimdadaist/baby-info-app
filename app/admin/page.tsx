@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { CATEGORY_META } from '@/lib/search'
+import RefreshButton from '@/components/RefreshButton'
 
 export const revalidate = 0
 
@@ -39,9 +40,10 @@ export default async function AdminPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-800">🛠 관리자 대시보드</h1>
-        <form action="/api/admin/logout" method="POST">
+        <div className="flex items-center gap-3">
+          <RefreshButton />
           <a href="/" className="text-xs text-gray-400 hover:text-rose-500 transition-colors">← 사이트로</a>
-        </form>
+        </div>
       </div>
 
       {/* 요약 카드 */}
