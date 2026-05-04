@@ -10,14 +10,19 @@ export type GeneratedArticle = {
 export async function generateArticle(
   category: string,
   weekRange: string | null,
-  topic: string
+  topic: string,
+  existingTitles: string[] = []
 ): Promise<GeneratedArticle> {
+  const avoidSection = existingTitles.length > 0
+    ? `\n이미 존재하는 글 (아래 주제와 다른 새로운 각도로 작성하세요):\n${existingTitles.map((t) => `- ${t}`).join('\n')}\n`
+    : ''
+
   const prompt = `당신은 신뢰할 수 있는 육아 정보를 제공하는 전문가입니다.
 아래 조건에 맞는 육아 정보 글을 작성해주세요.
 
 카테고리: ${category}${weekRange ? ` (${weekRange})` : ''}
 주제: ${topic}
-
+${avoidSection}
 요구사항:
 - 제목: 명확하고 검색하기 쉬운 제목 (50자 이내)
 - 요약: 2~3줄 핵심 요약
@@ -40,8 +45,9 @@ export async function generateArticle(
   const response = await openai.chat.completions.create({
     model: MODEL,
     messages: [{ role: 'user', content: prompt }],
+    // 기존 글과 다른 각도 유도를 위해 temperature 약간 높임
     response_format: { type: 'json_object' },
-    temperature: 0.7,
+    temperature: existingTitles.length > 0 ? 0.9 : 0.7,
   })
 
   const result = JSON.parse(response.choices[0].message.content!)

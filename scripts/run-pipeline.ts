@@ -4,6 +4,7 @@ if (!process.env.OPENAI_API_KEY) config({ path: '.env.local' })
 import { generateArticle } from '../pipeline/generate'
 import { reviewArticle } from '../pipeline/review'
 import { saveArticle, savePipelineLog } from '../pipeline/save'
+import { supabaseAdmin } from '../lib/supabase'
 
 const PASS_SCORE = 85
 const MAX_RETRY = 2
@@ -27,30 +28,51 @@ const TOPICS = [
   '목욕/위생', '발달/성장', '병원/의료', '심리/감정',
 ]
 
-// 오늘 실행할 카테고리+주제 조합 선택 (랜덤)
-function pickTargets(count: number) {
-  const pairs: { category: string; topic: string }[] = []
+// DB에서 기존 글 현황 조회: { "카테고리::토픽" → 제목 배열 }
+async function fetchExistingArticles(): Promise<Map<string, string[]>> {
+  const { data } = await supabaseAdmin
+    .from('articles')
+    .select('category, topic, title')
+    .eq('is_published', true)
+  const map = new Map<string, string[]>()
+  for (const row of data ?? []) {
+    const key = `${row.category}::${row.topic}`
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(row.title)
+  }
+  return map
+}
+
+// 오늘 실행할 카테고리+주제 조합 선택
+// 기존 글이 없는 조합을 우선 채우고, 나머지는 글이 적은 순으로 선택
+function pickTargets(count: number, existing: Map<string, string[]>) {
+  const pairs: { category: string; topic: string; existingCount: number }[] = []
   for (const category of CATEGORIES) {
     for (const topic of TOPICS) {
-      pairs.push({ category, topic })
+      const key = `${category}::${topic}`
+      pairs.push({ category, topic, existingCount: existing.get(key)?.length ?? 0 })
     }
   }
-  // 셔플 후 count개 선택
-  for (let i = pairs.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pairs[i], pairs[j]] = [pairs[j], pairs[i]]
-  }
+  // 기존 글 수 오름차순 정렬 후, 같은 수끼리는 셔플
+  pairs.sort((a, b) => {
+    if (a.existingCount !== b.existingCount) return a.existingCount - b.existingCount
+    return Math.random() - 0.5
+  })
   return pairs.slice(0, count)
 }
 
-async function runOne(category: string, topic: string, dryRun: boolean) {
+async function runOne(category: string, topic: string, existingTitles: string[], dryRun: boolean) {
   const weekRange = WEEK_RANGE[category] ?? null
   let lastError = ''
+
+  if (existingTitles.length > 0) {
+    console.log(`  [중복확인] 기존 글 ${existingTitles.length}개 감지 — 다른 각도로 생성`)
+  }
 
   for (let attempt = 1; attempt <= MAX_RETRY; attempt++) {
     try {
       console.log(`  [생성] ${category} / ${topic} (시도 ${attempt})`)
-      const article = await generateArticle(category, weekRange, topic)
+      const article = await generateArticle(category, weekRange, topic, existingTitles)
 
       // 한자 포함 여부 검사 (CJK Unified Ideographs: U+4E00~U+9FFF)
       const hasHanja = /[一-鿿]/.test(article.title + article.summary + article.content)
@@ -94,10 +116,19 @@ async function main() {
   console.log(`\n🍼 육아 정보 파이프라인 시작 ${dryRun ? '[DRY-RUN]' : ''}`)
   console.log(`목표: ${DAILY_TARGET}개 / 통과 기준: ${PASS_SCORE}점\n`)
 
-  const targets = pickTargets(DAILY_TARGET)
+  console.log('📊 기존 콘텐츠 현황 조회 중...')
+  const existing = await fetchExistingArticles()
+  const totalExisting = Array.from(existing.values()).reduce((s, v) => s + v.length, 0)
+  const covered = existing.size
+  console.log(`  총 ${totalExisting}개 글 / ${covered}/56개 조합 커버됨\n`)
 
-  for (const { category, topic } of targets) {
-    await runOne(category, topic, dryRun)
+  const targets = pickTargets(DAILY_TARGET, existing)
+
+  for (const { category, topic, existingCount } of targets) {
+    const key = `${category}::${topic}`
+    const existingTitles = existing.get(key) ?? []
+    console.log(`▶ ${category} / ${topic} (기존 ${existingCount}개)`)
+    await runOne(category, topic, existingTitles, dryRun)
     console.log('')
   }
 
