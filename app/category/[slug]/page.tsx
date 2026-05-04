@@ -78,6 +78,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <ArticleCard
               key={a.id}
               id={a.id}
+              slug={a.slug ?? undefined}
               title={a.title}
               summary={a.summary}
               topic={a.topic}

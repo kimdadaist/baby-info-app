@@ -30,6 +30,7 @@ export default async function HomePage({ searchParams }: { searchParams: { q?: s
                 <ArticleCard
                   key={a.id}
                   id={a.id}
+                  slug={a.slug ?? undefined}
                   title={a.title}
                   summary={a.summary}
                   category={a.category}

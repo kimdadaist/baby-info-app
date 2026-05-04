@@ -135,7 +135,7 @@ export default async function ArticlePage({ params }: Props) {
           </h2>
           <div className="space-y-2.5">
             {related.map((a) => (
-              <ArticleCard key={a.id} id={a.id} title={a.title} summary="" topic={a.topic} />
+              <ArticleCard key={a.id} id={a.id} slug={a.slug ?? undefined} title={a.title} summary="" topic={a.topic} />
             ))}
           </div>
         </section>

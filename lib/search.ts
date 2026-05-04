@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase, supabaseAdmin } from './supabase'
 
 export const CATEGORY_SLUGS: Record<string, string> = {
   'pregnancy-early': '임신초기',
@@ -58,21 +58,22 @@ export async function getArticlesByCategory(category: string, topic?: string) {
 
 export async function getArticle(idOrSlug: string) {
   if (!UUID_REGEX.test(idOrSlug)) {
-    const { data } = await supabase
+    const { data } = await supabaseAdmin
       .from('articles')
       .select('*')
       .eq('slug', idOrSlug)
       .eq('is_published', true)
-      .single()
+      .maybeSingle()
     if (data) return data
+    return null
   }
 
-  const { data } = await supabase
+  const { data } = await supabaseAdmin
     .from('articles')
     .select('*')
     .eq('id', idOrSlug)
     .eq('is_published', true)
-    .single()
+    .maybeSingle()
   return data
 }
 
