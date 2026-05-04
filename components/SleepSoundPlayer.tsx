@@ -5,6 +5,7 @@ import { SOUND_CATEGORIES, startSound, type SoundId, type SoundHandle } from '@/
 
 const TIMER_OPTIONS = [
   { label: '타이머 없음', value: 0 },
+  { label: '🧪 10초', value: 1 / 6 },  // 테스트용
   { label: '15분', value: 15 },
   { label: '30분', value: 30 },
   { label: '60분', value: 60 },
