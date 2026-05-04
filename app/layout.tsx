@@ -56,6 +56,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="max-w-3xl mx-auto px-4 py-8">
           {children}
         </div>
+        <footer className="max-w-3xl mx-auto px-4 py-8 mt-4 border-t border-gray-100">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="https://qr.kakaopay.com/FdzuMdlnA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-gray-500 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 rounded-2xl px-4 py-2.5 transition-colors"
+            >
+              ☕ 커피값 보내기
+            </a>
+            <a
+              href="https://www.instagram.com/dada.kimm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-2xl px-4 py-2.5 transition-colors"
+            >
+              📩 개선 요청 · 문의
+            </a>
+          </div>
+          <p className="text-center text-xs text-gray-300 mt-4">이 서비스의 정보는 참고용이며 의료 전문가의 조언을 대체하지 않아요</p>
+        </footer>
       </body>
     </html>
   )
