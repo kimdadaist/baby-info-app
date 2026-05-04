@@ -28,24 +28,26 @@ const TOPICS = [
   '목욕/위생', '발달/성장', '병원/의료', '심리/감정',
 ]
 
-// DB에서 기존 글 현황 조회: { "카테고리::토픽" → 제목 배열 }
-async function fetchExistingArticles(): Promise<Map<string, string[]>> {
+type ArticleContext = { title: string; summary: string; tags: string[] }
+
+// DB에서 기존 글 현황 조회: { "카테고리::토픽" → 글 컨텍스트 배열 }
+async function fetchExistingArticles(): Promise<Map<string, ArticleContext[]>> {
   const { data } = await supabaseAdmin
     .from('articles')
-    .select('category, topic, title')
+    .select('category, topic, title, summary, tags')
     .eq('is_published', true)
-  const map = new Map<string, string[]>()
+  const map = new Map<string, ArticleContext[]>()
   for (const row of data ?? []) {
     const key = `${row.category}::${row.topic}`
     if (!map.has(key)) map.set(key, [])
-    map.get(key)!.push(row.title)
+    map.get(key)!.push({ title: row.title, summary: row.summary, tags: row.tags ?? [] })
   }
   return map
 }
 
 // 오늘 실행할 카테고리+주제 조합 선택
 // 기존 글이 없는 조합을 우선 채우고, 나머지는 글이 적은 순으로 선택
-function pickTargets(count: number, existing: Map<string, string[]>) {
+function pickTargets(count: number, existing: Map<string, ArticleContext[]>) {
   const pairs: { category: string; topic: string; existingCount: number }[] = []
   for (const category of CATEGORIES) {
     for (const topic of TOPICS) {
@@ -61,18 +63,18 @@ function pickTargets(count: number, existing: Map<string, string[]>) {
   return pairs.slice(0, count)
 }
 
-async function runOne(category: string, topic: string, existingTitles: string[], dryRun: boolean) {
+async function runOne(category: string, topic: string, existingArticles: ArticleContext[], dryRun: boolean) {
   const weekRange = WEEK_RANGE[category] ?? null
   let lastError = ''
 
-  if (existingTitles.length > 0) {
-    console.log(`  [중복확인] 기존 글 ${existingTitles.length}개 감지 — 다른 각도로 생성`)
+  if (existingArticles.length > 0) {
+    console.log(`  [중복확인] 기존 글 ${existingArticles.length}개 감지 — 제목+요약+태그 기반으로 다른 각도 생성`)
   }
 
   for (let attempt = 1; attempt <= MAX_RETRY; attempt++) {
     try {
       console.log(`  [생성] ${category} / ${topic} (시도 ${attempt})`)
-      const article = await generateArticle(category, weekRange, topic, existingTitles)
+      const article = await generateArticle(category, weekRange, topic, existingArticles)
 
       // 한자 포함 여부 검사 (CJK Unified Ideographs: U+4E00~U+9FFF)
       const hasHanja = /[一-鿿]/.test(article.title + article.summary + article.content)
@@ -126,9 +128,9 @@ async function main() {
 
   for (const { category, topic, existingCount } of targets) {
     const key = `${category}::${topic}`
-    const existingTitles = existing.get(key) ?? []
+    const existingArticles = existing.get(key) ?? []
     console.log(`▶ ${category} / ${topic} (기존 ${existingCount}개)`)
-    await runOne(category, topic, existingTitles, dryRun)
+    await runOne(category, topic, existingArticles, dryRun)
     console.log('')
   }
 

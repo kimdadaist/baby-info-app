@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { CATEGORY_META } from '@/lib/search'
 import RefreshButton from '@/components/RefreshButton'
+import AdminGenerateForm from '@/components/AdminGenerateForm'
 
 export const revalidate = 0
 
@@ -45,6 +46,9 @@ export default async function AdminPage() {
           <a href="/" className="text-xs text-gray-400 hover:text-rose-500 transition-colors">← 사이트로</a>
         </div>
       </div>
+
+      {/* 수동 생성 */}
+      <AdminGenerateForm />
 
       {/* 요약 카드 */}
       <div className="grid grid-cols-3 gap-3">
