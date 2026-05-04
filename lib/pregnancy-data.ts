@@ -122,9 +122,9 @@ export function getWeekInfo(week: number): WeekInfo {
 }
 
 export function getCategory(week: number): { name: string; slug: string } | null {
-  if (week <= 12) return { name: '임신초기', slug: '임신초기' }
-  if (week <= 27) return { name: '임신중기', slug: '임신중기' }
-  if (week <= 40) return { name: '임신말기', slug: '임신말기' }
+  if (week <= 12) return { name: '임신초기', slug: 'pregnancy-early' }
+  if (week <= 27) return { name: '임신중기', slug: 'pregnancy-mid' }
+  if (week <= 40) return { name: '임신말기', slug: 'pregnancy-late' }
   return null
 }
 
