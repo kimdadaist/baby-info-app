@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import ArticleCard from '@/components/ArticleCard'
 import { CATEGORY_SLUGS, CATEGORY_META, TOPICS, getArticlesByCategory } from '@/lib/search'
@@ -6,6 +7,20 @@ import { CATEGORY_SLUGS, CATEGORY_META, TOPICS, getArticlesByCategory } from '@/
 export const revalidate = 3600
 
 type Props = { params: { slug: string }; searchParams: { topic?: string } }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const category = CATEGORY_SLUGS[params.slug]
+  if (!category) return {}
+  const meta = CATEGORY_META[category]
+  const title = `${category} 육아정보 (${meta.weekRange})`
+  const description = `${category}(${meta.weekRange}) 시기의 건강, 수면, 수유, 발달 등 신뢰할 수 있는 육아 정보를 확인하세요.`
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { card: 'summary', title, description },
+  }
+}
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const category = CATEGORY_SLUGS[params.slug]

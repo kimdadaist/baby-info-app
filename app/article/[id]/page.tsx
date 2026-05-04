@@ -1,11 +1,36 @@
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import FeedbackButtons from '@/components/FeedbackButtons'
 import ArticleCard from '@/components/ArticleCard'
 import { getArticle, getRelatedArticles, SLUG_BY_CATEGORY, CATEGORY_META } from '@/lib/search'
 
+const BASE_URL = 'https://baby-info-app-taupe.vercel.app'
+
 type Props = { params: { id: string } }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const article = await getArticle(params.id)
+  if (!article) return {}
+  const url = `${BASE_URL}/article/${article.id}`
+  return {
+    title: article.title,
+    description: article.summary,
+    keywords: article.tags,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      url,
+      title: article.title,
+      description: article.summary,
+      publishedTime: article.created_at,
+      modifiedTime: article.updated_at,
+      tags: article.tags,
+    },
+    twitter: { card: 'summary', title: article.title, description: article.summary },
+  }
+}
 
 export default async function ArticlePage({ params }: Props) {
   const article = await getArticle(params.id)
@@ -15,8 +40,30 @@ export default async function ArticlePage({ params }: Props) {
   const categorySlug = SLUG_BY_CATEGORY[article.category]
   const meta = CATEGORY_META[article.category]
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.summary,
+    keywords: article.tags?.join(', '),
+    datePublished: article.created_at,
+    dateModified: article.updated_at,
+    author: { '@type': 'Organization', name: '육아정보' },
+    publisher: { '@type': 'Organization', name: '육아정보' },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${BASE_URL}/article/${article.id}` },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '홈', item: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: article.category, item: `${BASE_URL}/category/${categorySlug}` },
+        { '@type': 'ListItem', position: 3, name: article.title, item: `${BASE_URL}/article/${article.id}` },
+      ],
+    },
+  }
+
   return (
     <div className="space-y-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* 브레드크럼 */}
       <nav className="flex items-center gap-1.5 text-xs text-gray-400">
         <Link href="/" className="hover:text-rose-500 transition-colors">홈</Link>

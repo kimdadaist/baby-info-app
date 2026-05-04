@@ -1,9 +1,40 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+const BASE_URL = 'https://baby-info-app-taupe.vercel.app'
+
 export const metadata: Metadata = {
-  title: '육아정보 — 광고 없는 신뢰할 수 있는 육아 정보',
-  description: '임신부터 신생아 3개월까지, 광고 없이 AI가 큐레이션한 믿을 수 있는 육아 정보',
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: '육아정보 — 광고 없는 신뢰할 수 있는 육아 정보',
+    template: '%s | 육아정보',
+  },
+  description: '임신 초기부터 신생아 3개월까지, AI가 검수한 광고 없는 육아 정보. 임신 주차별, 신생아 월령별 맞춤 정보를 제공합니다.',
+  keywords: ['육아정보', '임신', '신생아', '육아', '임산부', '태교', '출산준비', '신생아케어'],
+  authors: [{ name: '육아정보' }],
+  creator: '육아정보',
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: BASE_URL,
+    siteName: '육아정보',
+    title: '육아정보 — 광고 없는 신뢰할 수 있는 육아 정보',
+    description: '임신 초기부터 신생아 3개월까지, AI가 검수한 광고 없는 육아 정보',
+  },
+  twitter: {
+    card: 'summary',
+    title: '육아정보 — 광고 없는 신뢰할 수 있는 육아 정보',
+    description: '임신 초기부터 신생아 3개월까지, AI가 검수한 광고 없는 육아 정보',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  verification: {
+    // 네이버 서치어드바이저 인증 코드 — 발급 후 아래에 입력
+    // naver: 'NAVER_VERIFICATION_CODE',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
