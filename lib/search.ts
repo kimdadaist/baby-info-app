@@ -57,11 +57,13 @@ export async function getArticlesByCategory(category: string, topic?: string) {
 }
 
 export async function getArticle(idOrSlug: string) {
-  if (!UUID_REGEX.test(idOrSlug)) {
+  const decoded = decodeURIComponent(idOrSlug)
+
+  if (!UUID_REGEX.test(decoded)) {
     const { data } = await supabaseAdmin
       .from('articles')
       .select('*')
-      .eq('slug', idOrSlug)
+      .eq('slug', decoded)
       .eq('is_published', true)
       .maybeSingle()
     if (data) return data
@@ -71,7 +73,7 @@ export async function getArticle(idOrSlug: string) {
   const { data } = await supabaseAdmin
     .from('articles')
     .select('*')
-    .eq('id', idOrSlug)
+    .eq('id', decoded)
     .eq('is_published', true)
     .maybeSingle()
   return data
