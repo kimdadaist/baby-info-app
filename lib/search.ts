@@ -79,6 +79,24 @@ export async function getArticle(idOrSlug: string) {
   return data
 }
 
+export async function getPopularTags(limit = 15): Promise<string[]> {
+  const { data } = await supabase
+    .from('articles')
+    .select('tags')
+    .eq('is_published', true)
+
+  const count: Record<string, number> = {}
+  for (const row of data ?? []) {
+    for (const tag of row.tags ?? []) {
+      count[tag] = (count[tag] ?? 0) + 1
+    }
+  }
+  return Object.entries(count)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([tag]) => tag)
+}
+
 export async function getRelatedArticles(category: string, currentId: string) {
   const { data } = await supabase
     .from('articles')

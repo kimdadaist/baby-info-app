@@ -2,13 +2,16 @@ import Link from 'next/link'
 import SearchBar from '@/components/SearchBar'
 import ArticleCard from '@/components/ArticleCard'
 import PregnancyCalculator from '@/components/PregnancyCalculator'
-import { searchArticles, CATEGORY_META, SLUG_BY_CATEGORY } from '@/lib/search'
+import { searchArticles, getPopularTags, CATEGORY_META, SLUG_BY_CATEGORY } from '@/lib/search'
 
 export const revalidate = 3600
 
 export default async function HomePage({ searchParams }: { searchParams: { q?: string } }) {
   const query = searchParams.q?.trim() ?? ''
-  const articles = query ? await searchArticles(query) : []
+  const [articles, popularTags] = await Promise.all([
+    query ? searchArticles(query) : Promise.resolve([]),
+    getPopularTags(15),
+  ])
 
   return (
     <div className="space-y-10">
@@ -16,7 +19,7 @@ export default async function HomePage({ searchParams }: { searchParams: { q?: s
       <section className="text-center space-y-4 py-4">
         <h1 className="text-2xl font-bold text-gray-800">믿을 수 있는 육아 정보</h1>
         <p className="text-gray-500 text-sm">임신 초기부터 신생아 3개월까지, AI가 검수한 정보를 제공해요</p>
-        <SearchBar defaultValue={query} />
+        <SearchBar defaultValue={query} suggestions={popularTags} />
       </section>
 
       {/* 검색 결과 */}

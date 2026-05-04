@@ -124,7 +124,7 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* 피드백 */}
       <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-        <FeedbackButtons />
+        <FeedbackButtons articleId={article.id} />
       </div>
 
       {/* 관련 글 */}
