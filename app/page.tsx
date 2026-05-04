@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import SearchBar from '@/components/SearchBar'
 import ArticleCard from '@/components/ArticleCard'
+import PregnancyCalculator from '@/components/PregnancyCalculator'
 import { searchArticles, CATEGORY_META, SLUG_BY_CATEGORY } from '@/lib/search'
 
 export const revalidate = 3600
@@ -56,6 +57,12 @@ export default async function HomePage({ searchParams }: { searchParams: { q?: s
             title="신생아 월령별"
             categories={['신생아초기', '신생아중기', '신생아말기']}
           />
+
+          {/* 주차 계산기 */}
+          <section>
+            <h2 className="text-base font-semibold text-gray-700 mb-3">임신 주차 확인</h2>
+            <PregnancyCalculator />
+          </section>
 
           {/* 체크리스트 */}
           <section>
