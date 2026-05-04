@@ -32,14 +32,32 @@ export const TOPICS = [
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function searchArticles(query: string) {
-  const { data } = await supabase
-    .from('articles')
-    .select('id, slug, title, summary, category, topic, tags, quality_score')
-    .eq('is_published', true)
-    .or(`title.ilike.%${query}%,summary.ilike.%${query}%,content.ilike.%${query}%`)
-    .order('quality_score', { ascending: false })
-    .limit(20)
-  return data ?? []
+  const stripped = query.replace(/\s+/g, '')
+  const terms = stripped !== query && stripped.length > 0 ? [query, stripped] : [query]
+
+  const results = await Promise.all(
+    terms.map((term) =>
+      supabase
+        .from('articles')
+        .select('id, slug, title, summary, category, topic, tags, quality_score')
+        .eq('is_published', true)
+        .or(`title.ilike.%${term}%,summary.ilike.%${term}%,content.ilike.%${term}%`)
+        .order('quality_score', { ascending: false })
+        .limit(20)
+    )
+  )
+
+  const seen = new Set<string>()
+  const merged: NonNullable<(typeof results)[0]['data']> = []
+  for (const { data } of results) {
+    for (const row of data ?? []) {
+      if (!seen.has(row.id)) {
+        seen.add(row.id)
+        merged.push(row)
+      }
+    }
+  }
+  return merged.sort((a, b) => (b.quality_score ?? 0) - (a.quality_score ?? 0)).slice(0, 20)
 }
 
 export async function getArticlesByCategory(category: string, topic?: string) {
@@ -82,19 +100,32 @@ export async function getArticle(idOrSlug: string) {
 export async function getPopularTags(limit = 15): Promise<string[]> {
   const { data } = await supabase
     .from('articles')
-    .select('tags')
+    .select('tags, title, summary')
     .eq('is_published', true)
 
   const count: Record<string, number> = {}
+  const articleTexts: string[] = []
+
   for (const row of data ?? []) {
     for (const tag of row.tags ?? []) {
       count[tag] = (count[tag] ?? 0) + 1
     }
+    articleTexts.push(
+      (row.title + ' ' + row.summary).toLowerCase().replace(/\s+/g, '')
+    )
   }
-  return Object.entries(count)
+
+  const candidates = Object.entries(count)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, limit)
     .map(([tag]) => tag)
+
+  // 실제 제목/요약에 등장하는 태그만 추천
+  const valid = candidates.filter((tag) => {
+    const normalized = tag.toLowerCase().replace(/\s+/g, '')
+    return articleTexts.some((text) => text.includes(normalized))
+  })
+
+  return valid.slice(0, limit)
 }
 
 export async function getRelatedArticles(category: string, currentId: string) {
