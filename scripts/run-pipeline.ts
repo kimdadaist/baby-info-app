@@ -52,6 +52,14 @@ async function runOne(category: string, topic: string, dryRun: boolean) {
       console.log(`  [생성] ${category} / ${topic} (시도 ${attempt})`)
       const article = await generateArticle(category, weekRange, topic)
 
+      // 한자 포함 여부 검사 (CJK Unified Ideographs: U+4E00~U+9FFF)
+      const hasHanja = /[一-鿿]/.test(article.title + article.summary + article.content)
+      if (hasHanja) {
+        lastError = '한자 혼용 감지 — 재생성'
+        console.log(`  [재시도] ${lastError}`)
+        continue
+      }
+
       console.log(`  [검수] "${article.title}"`)
       const review = await reviewArticle(article, category, topic)
       console.log(`  [점수] ${review.total}점 — ${review.notes}`)
