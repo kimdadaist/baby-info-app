@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "pipeline": "ts-node --project tsconfig.pipeline.json -r tsconfig-paths/register scripts/run-pipeline.ts",
-    "pipeline:dry": "ts-node --project tsconfig.pipeline.json -r tsconfig-paths/register scripts/run-pipeline.ts --dry-run"
+    "pipeline:dry": "ts-node --project tsconfig.pipeline.json -r tsconfig-paths/register scripts/run-pipeline.ts --dry-run",
+    "fix:hanja": "ts-node --project tsconfig.pipeline.json -r tsconfig-paths/register scripts/fix-hanja.ts",
+    "fix:hanja:dry": "ts-node --project tsconfig.pipeline.json -r tsconfig-paths/register scripts/fix-hanja.ts --dry-run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
