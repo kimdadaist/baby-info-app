@@ -5,7 +5,6 @@ import { SOUND_CATEGORIES, startSound, type SoundId, type SoundHandle } from '@/
 
 const TIMER_OPTIONS = [
   { label: '타이머 없음', value: 0 },
-  { label: '🧪 10초', value: 1 / 6 },  // 테스트용
   { label: '15분', value: 15 },
   { label: '30분', value: 30 },
   { label: '60분', value: 60 },
@@ -58,22 +57,7 @@ export default function SleepSoundPlayer() {
     setSelectedSound(id)
     setIsPlaying(true)
 
-    if (timerMinutes > 0) {
-      const totalSeconds = timerMinutes * 60
-      setRemainingSeconds(totalSeconds)
-      timerRef.current = setInterval(() => {
-        setRemainingSeconds((prev) => {
-          if (prev <= 1) {
-            handleRef.current?.fadeOutAndStop(5)
-            handleRef.current = null
-            setIsPlaying(false)
-            if (timerRef.current) clearInterval(timerRef.current)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    }
+    if (timerMinutes > 0) startTimer(timerMinutes)
   }
 
   function handleStop() {
@@ -84,6 +68,31 @@ export default function SleepSoundPlayer() {
   function handleVolumeChange(v: number) {
     setVolume(v)
     handleRef.current?.setVolume(v)
+  }
+
+  function startTimer(minutes: number) {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
+    if (minutes <= 0) { setRemainingSeconds(0); return }
+    const totalSeconds = Math.round(minutes * 60)
+    setRemainingSeconds(totalSeconds)
+    timerRef.current = setInterval(() => {
+      setRemainingSeconds((prev) => {
+        if (prev <= 1) {
+          handleRef.current?.fadeOutAndStop(5)
+          handleRef.current = null
+          setIsPlaying(false)
+          if (timerRef.current) clearInterval(timerRef.current)
+          timerRef.current = null
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  function handleTimerChange(minutes: number) {
+    setTimerMinutes(minutes)
+    if (isPlaying) startTimer(minutes)
   }
 
   return (
@@ -171,7 +180,7 @@ export default function SleepSoundPlayer() {
             {TIMER_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => setTimerMinutes(opt.value)}
+                onClick={() => handleTimerChange(opt.value)}
                 className={`text-xs px-3 py-1.5 rounded-xl border transition-colors
                   ${timerMinutes === opt.value
                     ? 'bg-rose-500 text-white border-rose-500'
