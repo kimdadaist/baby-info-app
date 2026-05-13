@@ -47,9 +47,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
             <a href="/" className="font-bold text-rose-500 text-lg tracking-tight">🍼 육아정보</a>
             <div className="flex items-center gap-4">
+              <a href="/tracker" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">트래커</a>
               <a href="/sleep" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">백색소음기</a>
               <a href="/checklist" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">준비물</a>
-              <a href="/checklist/dad" className="text-sm text-gray-500 hover:text-rose-500 transition-colors">아빠용</a>
             </div>
           </div>
         </header>
